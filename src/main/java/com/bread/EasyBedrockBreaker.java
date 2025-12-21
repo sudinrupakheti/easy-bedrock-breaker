@@ -34,14 +34,13 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 			"key.bread.delayBlockPackets", 
 			InputUtil.Type.KEYSYM, 
 			InputUtil.UNKNOWN_KEY.getCode(), 
-			KeyBinding.MISC_CATEGORY
+			"category.bread.breadclient"
 		));
 		
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (!activateKey.isPressed()) releasePackets();
 		});
 		
-		// Using HudRenderCallback (still works in 1.21.11)
 		HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
 			if (EasyBedrockBreaker.isDelayingPackets()) {
 				MinecraftClient client = MinecraftClient.getInstance();
