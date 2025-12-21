@@ -10,6 +10,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.*;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,10 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("easy-bedrock-breaker");
 	private static ArrayList<Packet<?>> delayedPackets = new ArrayList<>();
 	private static KeyBinding activateKey;
+	
+	// Create a custom category for the keybinding
+	private static final KeyBinding.Category BEDROCK_BREAKER_CATEGORY = 
+		KeyBinding.Category.create(Identifier.of("easy-bedrock-breaker", "main"));
 	
 	public static final Class[] blockedPackets = {
 			PlayerActionC2SPacket.class,
@@ -34,7 +39,7 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 			"key.bread.delayBlockPackets", 
 			InputUtil.Type.KEYSYM, 
 			InputUtil.UNKNOWN_KEY.getCode(), 
-			"category.bread.breadclient"
+			BEDROCK_BREAKER_CATEGORY
 		));
 		
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
