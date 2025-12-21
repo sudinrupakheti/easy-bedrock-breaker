@@ -1,20 +1,17 @@
 package com.bread;
 
 import net.fabricmc.api.ClientModInitializer;
-
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.text.*;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +19,10 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 
 public class EasyBedrockBreaker implements ClientModInitializer {
-
     public static final Logger LOGGER = LoggerFactory.getLogger("easy-bedrock-breaker");
-
 	private static ArrayList<Packet<?>> delayedPackets = new ArrayList<>();
-
 	private static KeyBinding activateKey;
-
+	
 	public static final Class[] blockedPackets = {
 			PlayerActionC2SPacket.class,
 			PlayerInputC2SPacket.class,
@@ -39,16 +33,36 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.bread.delayBlockPackets", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "category.bread.breadclient"));
+		activateKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.bread.delayBlockPackets", 
+			InputUtil.Type.KEYSYM, 
+			InputUtil.UNKNOWN_KEY.getCode(), 
+			"category.bread.breadclient"
+		));
+		
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			if (!activateKey.isPressed()) releasePackets();
 		});
-
-		HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            if (EasyBedrockBreaker.isDelayingPackets())
-				MinecraftClient.getInstance().textRenderer.draw("delaying packets", 4, drawContext.getScaledWindowHeight() - 4 - MinecraftClient.getInstance().textRenderer.fontHeight, 0xffffffff, true, drawContext.getMatrices().peek().getPositionMatrix(), drawContext.getVertexConsumers(), TextRenderer.TextLayerType.NORMAL, 0x00000000, 1);
-        });
-
+		
+		// NEW: Using HudElementRegistry instead of deprecated HudRenderCallback
+		HudElementRegistry.attachElementAfter(
+			null, // Attach after nothing (renders last)
+			Identifier.of("easy-bedrock-breaker", "packet_delay_indicator"),
+			(drawContext, tickCounter) -> {
+				if (EasyBedrockBreaker.isDelayingPackets()) {
+					MinecraftClient client = MinecraftClient.getInstance();
+					drawContext.drawText(
+						client.textRenderer,
+						"delaying packets",
+						4,
+						drawContext.getScaledWindowHeight() - 4 - client.textRenderer.fontHeight,
+						0xFFFFFFFF,
+						true
+					);
+				}
+			}
+		);
+		
 		LOGGER.info("easy bedrock breaker initialized");
 	}
 
@@ -70,5 +84,4 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 		}
 		delayedPackets.clear();
 	}
-
 }
