@@ -7,19 +7,17 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudElementRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.*;
 import net.minecraft.util.Identifier;
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 
 public class EasyBedrockBreaker implements ClientModInitializer {
-    public static final Logger LOGGER = LoggerFactory.getLogger("easy-bedrock-breaker");
+	public static final Logger LOGGER = LoggerFactory.getLogger("easy-bedrock-breaker");
 	private static ArrayList<Packet<?>> delayedPackets = new ArrayList<>();
 	private static KeyBinding activateKey;
 	
@@ -44,9 +42,9 @@ public class EasyBedrockBreaker implements ClientModInitializer {
 			if (!activateKey.isPressed()) releasePackets();
 		});
 		
-		// NEW: Using HudElementRegistry instead of deprecated HudRenderCallback
+		// Using HudElementRegistry instead of deprecated HudRenderCallback
 		HudElementRegistry.attachElementAfter(
-			null, // Attach after nothing (renders last)
+			null,
 			Identifier.of("easy-bedrock-breaker", "packet_delay_indicator"),
 			(drawContext, tickCounter) -> {
 				if (EasyBedrockBreaker.isDelayingPackets()) {
